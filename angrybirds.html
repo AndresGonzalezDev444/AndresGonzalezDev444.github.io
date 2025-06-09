@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red's Routine Quiz</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #fff8f0, #ffe5e5);
+      margin: 0;
+      padding: 1rem;
+      color: #333;
+      overflow-x: hidden;
+    }
+    h1 {
+      text-align: center;
+      color: #d32f2f;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .quiz-container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      position: relative;
+      z-index: 2;
+    }
+    .question {
+      margin-bottom: 1.5rem;
+    }
+    .question p {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+    .options label {
+      display: block;
+      margin: 0.5rem 0;
+      background: #ffecec;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .options label:hover {
+      background: #ffcaca;
+    }
+    button {
+      display: block;
+      margin: 2rem auto 0;
+      background: #d32f2f;
+      color: white;
+      padding: 0.75rem 2rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 2rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      text-align: center;
+      color: #2e7d32;
+      white-space: pre-wrap;
+    }
+    .red-image {
+      width: 140px;
+      display: block;
+      margin: 0 auto 1.5rem;
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+    @media (max-width: 768px) {
+      .quiz-container {
+        padding: 1rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Red's Routine Quiz</h1>
+  <img src="angry.webp" alt="Red Angry Bird" class="red-image">
+
+  <div class="quiz-container">
+    <form id="quizForm">
+      <div class="question">
+        <p>1. Red _____ protects the eggs.</p>
+        <div class="options">
+          <label><input type="radio" name="q1" value="always"> always</label>
+          <label><input type="radio" name="q1" value="sometimes"> sometimes</label>
+          <label><input type="radio" name="q1" value="never"> never</label>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>2. Red _____ smiles in photos.</p>
+        <div class="options">
+          <label><input type="radio" name="q2" value="always"> always</label>
+          <label><input type="radio" name="q2" value="rarely"> rarely</label>
+          <label><input type="radio" name="q2" value="never"> never</label>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>3. Red _____ relaxes on the beach.</p>
+        <div class="options">
+          <label><input type="radio" name="q3" value="never"> never</label>
+          <label><input type="radio" name="q3" value="sometimes"> sometimes</label>
+          <label><input type="radio" name="q3" value="always"> always</label>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>4. Red _____ talks to the pigs.</p>
+        <div class="options">
+          <label><input type="radio" name="q4" value="never"> never</label>
+          <label><input type="radio" name="q4" value="rarely"> rarely</label>
+          <label><input type="radio" name="q4" value="often"> often</label>
+        </div>
+      </div>
+
+      <div class="question">
+        <p>5. Red _____ goes to the gym.</p>
+        <div class="options">
+          <label><input type="radio" name="q5" value="never"> never</label>
+          <label><input type="radio" name="q5" value="sometimes"> sometimes</label>
+          <label><input type="radio" name="q5" value="always"> always</label>
+        </div>
+      </div>
+
+      <button type="button" id="submitBtn">Check Answers</button>
+      <div class="result" id="result"></div>
+    </form>
+  </div>
+
+  <script>
+    const correctAnswers = {
+      q1: "always",
+      q2: "never",
+      q3: "sometimes",
+      q4: "often",
+      q5: "never"
+    };
+
+    document.getElementById('submitBtn').addEventListener('click', function() {
+      let score = 0;
+      const total = Object.keys(correctAnswers).length;
+      let summary = '';
+
+      for (let q in correctAnswers) {
+        const answer = document.querySelector(`input[name="${q}"]:checked`);
+        if (answer) {
+          if (answer.value === correctAnswers[q]) {
+            score++;
+            summary += `✔️ Question ${q[1]} is correct!\n`;
+          } else {
+            summary += `❌ Question ${q[1]} is incorrect. Correct answer: ${correctAnswers[q]}\n`;
+          }
+        } else {
+          summary += `⚠️ Question ${q[1]} was not answered.\n`;
+        }
+      }
+      document.getElementById('result').textContent = `You got ${score}/${total} correct!\n\n` + summary;
+    });
+  </script>
+</body>
+</html>
