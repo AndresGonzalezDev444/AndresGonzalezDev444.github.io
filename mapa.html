@@ -47,7 +47,6 @@
     .street-label.vertical {
       position: absolute;
       top: 50%;
-      /* Mover a la línea de la derecha entre columna 2 y 3 */
       left: calc(150px * 2 + 4px);
       background: #eef2f5;
       padding: 0 8px;
@@ -207,13 +206,20 @@
 
   <div id="ui">
     <div id="scoreboard">Attempt <span id="round">1</span>/5 — Total Score: <span id="total">0</span></div>
-    <div id="message">Drag and drop the character...</div>
+    <div id="message"></div>
     <button id="retry" class="hidden">Retry</button>
     <button id="next" class="hidden">Next</button>
   </div>
 
   <script>
     const order = ['Supermarket', 'Circus', 'Pharmacy', 'Stadium', 'Library'];
+    const levelMessages = [
+      "Walk half a block to the left, go one full block forward toward Main Avenue, turn left, and you’ll find it right in front of the hospital.",
+      "Walk half a block to the right toward New York Street, go one full block forward, then turn left — you’ll arrive at your destination.",
+      "You’ll find it sitting directly in front of the park, between the hospital and the stadium.",
+      "Walk all the way to the right, and you’ll see it on your left, right across from the library.",
+      "Walk all the way to the right, and you’ll see it on your right, right across from the stadium."
+    ];
     const elems = {};
     order.forEach(id => elems[id] = document.getElementById(id));
     const char = document.getElementById('character');
@@ -227,6 +233,9 @@
     let current = 0, totalScore = 0;
     const threshold = 30;
 
+    // Initialize first level message
+    msg.textContent = levelMessages[0];
+
     char.addEventListener('dragstart', e => setTimeout(() => char.style.visibility = 'hidden', 0));
     char.addEventListener('dragend', e => {
       char.style.visibility = 'visible';
@@ -239,10 +248,15 @@
 
     retryBtn.onclick = () => { msg.textContent = 'Try again...'; clearMarkers(); retryBtn.classList.add('hidden'); };
     nextBtn.onclick = () => {
-      clearMarkers(); current++; if (current >= order.length) { msg.textContent = `Game over! Final score: ${totalScore}`; nextBtn.classList.add('hidden'); return; }
+      clearMarkers(); current++; 
+      if (current >= order.length) {
+        msg.textContent = `Game over! Final score: ${totalScore}`;
+        nextBtn.classList.add('hidden');
+        return;
+      }
       roundEl.textContent = current + 1;
       levelEl.textContent = `LEVEL ${current + 1}`;
-      msg.textContent = 'Drag and drop the character...';
+      msg.textContent = levelMessages[current];
       nextBtn.classList.add('hidden');
     };
 
@@ -255,7 +269,7 @@
       const dist = Math.hypot(x - tx, y - ty);
       let score;
       if (dist < threshold) { score = 100; msg.textContent = 'Correct! 100 points.'; }
-      else { score = Math.round((1 - Math.min(dist, 400) / 400) * 9) + 1; msg.textContent = `Distance: ${Math.round(dist)}px → ${score} pts.`; retryBtn.classList.remove('hidden'); }
+      else { score = Math.round((1 - Math.min(dist, 400) / 400) * 9) + 1;	msg.textContent = `Distance: ${Math.round(dist)}px → ${score} pts.`; retryBtn.classList.remove('hidden'); }
       totalScore += score; totalEl.textContent = totalScore;
       placeMarker(x, y, current + 1);
       nextBtn.classList.remove('hidden');
