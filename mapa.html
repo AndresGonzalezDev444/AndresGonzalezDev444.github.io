@@ -23,7 +23,19 @@
     }
     #game-wrapper {
       position: relative;
-      display: inline-block;
+      width: 90vw;
+      max-width: 450px;
+    }
+    #game-container {
+      width: 100%;
+      aspect-ratio: 450 / 360;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      border: 4px solid #333;
+      background: #fff;
+      position: relative;
+      touch-action: none;
     }
     .street-label.horizontal {
       position: absolute;
@@ -47,7 +59,7 @@
     .street-label.vertical {
       position: absolute;
       top: 50%;
-      left: calc(150px * 2 + 4px);
+      left: calc(66.666% + 4px);
       background: #eef2f5;
       padding: 0 8px;
       font-weight: bold;
@@ -56,18 +68,6 @@
       transform: translate(-50%, -50%) rotate(90deg);
       z-index: 5;
     }
-    #game-container {
-      display: grid;
-      grid-template-columns: repeat(3, 150px);
-      grid-template-rows: repeat(3, 120px);
-      gap: 0;
-      position: relative;
-      border: 4px solid #333;
-      background: #fff;
-    }
-    #game-container > .row1 { border-bottom: 4px solid #333; }
-    #game-container > .row2 { border-bottom: 4px solid #333; }
-    #game-container > .col2 { border-right: 4px solid #333; }
     .cell {
       border: 1px solid #ccc;
       display: flex;
@@ -91,10 +91,9 @@
       border-radius: 50%;
       background: #ff6b6b;
       position: absolute;
-      left: calc(150px + 75px - 20px);
-      top: calc(120px*2 + 4px - 20px);
-      cursor: grab;
       z-index: 10;
+      cursor: grab;
+      touch-action: none;
     }
     .marker {
       position: absolute;
@@ -132,78 +131,27 @@
 <body>
   <h1>GeoDrag - Guess the Place</h1>
   <div id="level">LEVEL 1</div>
-
   <div id="game-wrapper">
     <div class="street-label horizontal top">Main Avenue</div>
     <div id="game-container">
       <div class="street-label vertical">New York Street</div>
-
       <!-- Row 1 -->
-      <div class="cell row1 col1" id="SupermarketCell">
-        <div class="stack">
-          <span id="Supermarket" class="placeable">🛒</span>
-          <span class="label">Supermarket</span>
-        </div>
-      </div>
-      <div class="cell row1 col2">
-        <div class="stack">
-          <span id="Circus" class="placeable">🎪</span>
-          <span class="label">Circus</span>
-        </div>
-      </div>
-      <div class="cell row1 col3">
-        <div class="stack">
-          <span id="University">🎓</span>
-          <span class="label">University</span>
-        </div>
-      </div>
-
+      <div class="cell"><div class="stack"><span id="Supermarket">🛒</span><span class="label">Supermarket</span></div></div>
+      <div class="cell"><div class="stack"><span id="Circus">🎪</span><span class="label">Circus</span></div></div>
+      <div class="cell"><div class="stack"><span id="University">🎓</span><span class="label">University</span></div></div>
       <!-- Row 2 -->
-      <div class="cell row2 col1">
-        <div class="stack">
-          <span id="Hospital">🏥</span>
-          <span class="label">Hospital</span>
-        </div>
-      </div>
-      <div class="cell row2 col2">
-        <div class="stack">
-          <span id="Pharmacy" class="placeable">💊</span>
-          <span class="label">Pharmacy</span>
-        </div>
-      </div>
-      <div class="cell row2 col3">
-        <div class="stack">
-          <span id="Stadium" class="placeable">🏟️</span>
-          <span class="label">Stadium</span>
-        </div>
-      </div>
-
+      <div class="cell"><div class="stack"><span id="Hospital">🏥</span><span class="label">Hospital</span></div></div>
+      <div class="cell"><div class="stack"><span id="Pharmacy">💊</span><span class="label">Pharmacy</span></div></div>
+      <div class="cell"><div class="stack"><span id="Stadium">🏟️</span><span class="label">Stadium</span></div></div>
       <!-- Row 3 -->
-      <div class="cell row3 col1">
-        <div class="stack">
-          <span id="Church">⛪</span>
-          <span class="label">Church</span>
-        </div>
-      </div>
-      <div class="cell row3 col2">
-        <div class="stack">
-          <span id="Park">🌳</span>
-          <span class="label">Park</span>
-        </div>
-      </div>
-      <div class="cell row3 col3">
-        <div class="stack">
-          <span id="Library" class="placeable">📚</span>
-          <span class="label">Library</span>
-        </div>
-      </div>
-
-      <!-- Player start -->
-      <div id="character" draggable="true"></div>
+      <div class="cell"><div class="stack"><span id="Church">⛪</span><span class="label">Church</span></div></div>
+      <div class="cell"><div class="stack"><span id="Park">🌳</span><span class="label">Park</span></div></div>
+      <div class="cell"><div class="stack"><span id="Library">📚</span><span class="label">Library</span></div></div>
+      <!-- Movable character -->
+      <div id="character"></div>
     </div>
     <div class="street-label horizontal bottom">Columbus Avenue</div>
   </div>
-
   <div id="ui">
     <div id="scoreboard">Attempt <span id="round">1</span>/5 — Total Score: <span id="total">0</span></div>
     <div id="message"></div>
@@ -212,7 +160,7 @@
   </div>
 
   <script>
-    const order = ['Supermarket', 'Circus', 'Pharmacy', 'Stadium', 'Library'];
+    const order = ['Supermarket','Circus','Pharmacy','Stadium','Library'];
     const levelMessages = [
       "Walk half a block to the left, go one full block forward toward Main Avenue, turn left, and you’ll find it right in front of the hospital.",
       "Walk half a block to the right toward New York Street, go one full block forward, then turn left — you’ll arrive at your destination.",
@@ -222,33 +170,68 @@
     ];
     const elems = {};
     order.forEach(id => elems[id] = document.getElementById(id));
-    const char = document.getElementById('character');
     const container = document.getElementById('game-container');
+    const char = document.getElementById('character');
     const msg = document.getElementById('message');
     const retryBtn = document.getElementById('retry');
     const nextBtn = document.getElementById('next');
     const roundEl = document.getElementById('round');
     const totalEl = document.getElementById('total');
     const levelEl = document.getElementById('level');
-    let current = 0, totalScore = 0;
-    const threshold = 30;
+    let current = 0, totalScore = 0, threshold = 30;
 
-    // Initialize first level message
-    msg.textContent = levelMessages[0];
+    function setInitialPosition() {
+      const cellIndex = 7; // bottom middle cell
+      const cells = container.querySelectorAll('.cell');
+      const rect = cells[cellIndex].getBoundingClientRect();
+      const crect = container.getBoundingClientRect();
+      char.style.left = `${rect.left + rect.width/2 - crect.left - char.offsetWidth/2}px`;
+      // moved up 20px for better positioning, above the street line
+      char.style.top  = `${rect.top + rect.height/2 - crect.top - char.offsetHeight/2 - 20}px`;
+    }
 
-    char.addEventListener('dragstart', e => setTimeout(() => char.style.visibility = 'hidden', 0));
-    char.addEventListener('dragend', e => {
-      char.style.visibility = 'visible';
-      const rect = container.getBoundingClientRect();
-      const x = e.pageX - rect.left;
-      const y = e.pageY - rect.top;
+    window.onload = () => {
+      msg.textContent = levelMessages[0];
+      setTimeout(setInitialPosition, 50);
+    };
+
+    // Unified pointer events handling for mouse and touch
+    let dragging = false, offsetX = 0, offsetY = 0;
+    char.addEventListener('pointerdown', e => {
+      dragging = true;
+      char.setPointerCapture(e.pointerId);
+      const crect = container.getBoundingClientRect();
+      offsetX = e.clientX - (char.offsetLeft + crect.left);
+      offsetY = e.clientY - (char.offsetTop + crect.top);
+      char.style.cursor = 'grabbing';
+    });
+
+    char.addEventListener('pointermove', e => {
+      if (!dragging) return;
+      const crect = container.getBoundingClientRect();
+      let x = e.clientX - crect.left - offsetX;
+      let y = e.clientY - crect.top - offsetY;
+      x = Math.max(0, Math.min(x, crect.width - char.offsetWidth));
+      y = Math.max(0, Math.min(y, crect.height - char.offsetHeight));
+      char.style.left = `${x}px`;
+      char.style.top = `${y}px`;
+    });
+
+    char.addEventListener('pointerup', e => {
+      if (!dragging) return;
+      dragging = false;
+      char.releasePointerCapture(e.pointerId);
+      char.style.cursor = 'grab';
+      const crect = container.getBoundingClientRect();
+      const x = e.clientX - crect.left;
+      const y = e.clientY - crect.top;
       evaluate(x, y);
     });
-    container.addEventListener('dragover', e => e.preventDefault());
 
     retryBtn.onclick = () => { msg.textContent = 'Try again...'; clearMarkers(); retryBtn.classList.add('hidden'); };
     nextBtn.onclick = () => {
-      clearMarkers(); current++; 
+      clearMarkers();
+      current++;
       if (current >= order.length) {
         msg.textContent = `Game over! Final score: ${totalScore}`;
         nextBtn.classList.add('hidden');
@@ -257,25 +240,44 @@
       roundEl.textContent = current + 1;
       levelEl.textContent = `LEVEL ${current + 1}`;
       msg.textContent = levelMessages[current];
+      setTimeout(setInitialPosition, 50);
       nextBtn.classList.add('hidden');
     };
 
     function evaluate(x, y) {
-      const id = order[current];
-      const target = elems[id].getBoundingClientRect();
-      const cont = container.getBoundingClientRect();
-      const tx = target.left + target.width / 2 - cont.left;
-      const ty = target.top + target.height / 2 - cont.top;
+      const targetRect = elems[order[current]].closest('.cell').getBoundingClientRect();
+      const crect = container.getBoundingClientRect();
+      const tx = targetRect.left + targetRect.width/2 - crect.left;
+      const ty = targetRect.top + targetRect.height/2 - crect.top;
       const dist = Math.hypot(x - tx, y - ty);
       let score;
-      if (dist < threshold) { score = 100; msg.textContent = 'Correct! 100 points.'; }
-      else { score = Math.round((1 - Math.min(dist, 400) / 400) * 9) + 1;	msg.textContent = `Distance: ${Math.round(dist)}px → ${score} pts.`; retryBtn.classList.remove('hidden'); }
-      totalScore += score; totalEl.textContent = totalScore;
+      if (dist < threshold) {
+        score = 100;
+        msg.textContent = 'Correct! 100 points.';
+      } else {
+        score = Math.round((1 - Math.min(dist, 400)/400) * 9) + 1;
+        msg.textContent = `Distance: ${Math.round(dist)}px → ${score} pts.`;
+        retryBtn.classList.remove('hidden');
+      }
+      totalScore += score;
+      totalEl.textContent = totalScore;
       placeMarker(x, y, current + 1);
       nextBtn.classList.remove('hidden');
     }
-    function placeMarker(x, y, label) { const m = document.createElement('div'); m.className = 'marker'; m.textContent = label; m.style.left = `${x - 12}px`; m.style.top = `${y - 12}px`; container.appendChild(m); requestAnimationFrame(() => m.classList.add('show')); }
-    function clearMarkers() { document.querySelectorAll('.marker').forEach(m => m.remove()); }
+
+    function placeMarker(x, y, label) {
+      const m = document.createElement('div');
+      m.className = 'marker';
+      m.textContent = label;
+      m.style.left = `${x - 12}px`;
+      m.style.top  = `${y - 12}px`;
+      container.appendChild(m);
+      requestAnimationFrame(() => m.classList.add('show'));
+    }
+
+    function clearMarkers() {
+      document.querySelectorAll('.marker').forEach(m => m.remove());
+    }
   </script>
 </body>
 </html>
