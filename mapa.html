@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeoDrag Game</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #eef2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    h1 { margin-bottom: 10px; }
+    #level {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #333;
+      font-weight: bold;
+    }
+    #game-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .street-label.horizontal {
+      position: absolute;
+      background: #eef2f5;
+      padding: 0 8px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #333;
+      z-index: 5;
+    }
+    .street-label.horizontal.top {
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .street-label.horizontal.bottom {
+      bottom: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .street-label.vertical {
+      position: absolute;
+      top: 50%;
+      /* Mover a la línea de la derecha entre columna 2 y 3 */
+      left: calc(150px * 2 + 4px);
+      background: #eef2f5;
+      padding: 0 8px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #333;
+      transform: translate(-50%, -50%) rotate(90deg);
+      z-index: 5;
+    }
+    #game-container {
+      display: grid;
+      grid-template-columns: repeat(3, 150px);
+      grid-template-rows: repeat(3, 120px);
+      gap: 0;
+      position: relative;
+      border: 4px solid #333;
+      background: #fff;
+    }
+    #game-container > .row1 { border-bottom: 4px solid #333; }
+    #game-container > .row2 { border-bottom: 4px solid #333; }
+    #game-container > .col2 { border-right: 4px solid #333; }
+    .cell {
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .stack .label {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #333;
+    }
+    #character {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ff6b6b;
+      position: absolute;
+      left: calc(150px + 75px - 20px);
+      top: calc(120px*2 + 4px - 20px);
+      cursor: grab;
+      z-index: 10;
+    }
+    .marker {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      background: #3498db;
+      color: #fff;
+      font-size: 14px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+    .marker.show { opacity: 1; }
+    #ui { margin-top: 20px; text-align: center; }
+    #scoreboard { margin-bottom: 10px; }
+    button {
+      padding: 8px 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      background: #333;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #555; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>GeoDrag - Guess the Place</h1>
+  <div id="level">LEVEL 1</div>
+
+  <div id="game-wrapper">
+    <div class="street-label horizontal top">Main Avenue</div>
+    <div id="game-container">
+      <div class="street-label vertical">New York Street</div>
+
+      <!-- Row 1 -->
+      <div class="cell row1 col1" id="SupermarketCell">
+        <div class="stack">
+          <span id="Supermarket" class="placeable">🛒</span>
+          <span class="label">Supermarket</span>
+        </div>
+      </div>
+      <div class="cell row1 col2">
+        <div class="stack">
+          <span id="Circus" class="placeable">🎪</span>
+          <span class="label">Circus</span>
+        </div>
+      </div>
+      <div class="cell row1 col3">
+        <div class="stack">
+          <span id="University">🎓</span>
+          <span class="label">University</span>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="cell row2 col1">
+        <div class="stack">
+          <span id="Hospital">🏥</span>
+          <span class="label">Hospital</span>
+        </div>
+      </div>
+      <div class="cell row2 col2">
+        <div class="stack">
+          <span id="Pharmacy" class="placeable">💊</span>
+          <span class="label">Pharmacy</span>
+        </div>
+      </div>
+      <div class="cell row2 col3">
+        <div class="stack">
+          <span id="Stadium" class="placeable">🏟️</span>
+          <span class="label">Stadium</span>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="cell row3 col1">
+        <div class="stack">
+          <span id="Church">⛪</span>
+          <span class="label">Church</span>
+        </div>
+      </div>
+      <div class="cell row3 col2">
+        <div class="stack">
+          <span id="Park">🌳</span>
+          <span class="label">Park</span>
+        </div>
+      </div>
+      <div class="cell row3 col3">
+        <div class="stack">
+          <span id="Library" class="placeable">📚</span>
+          <span class="label">Library</span>
+        </div>
+      </div>
+
+      <!-- Player start -->
+      <div id="character" draggable="true"></div>
+    </div>
+    <div class="street-label horizontal bottom">Columbus Avenue</div>
+  </div>
+
+  <div id="ui">
+    <div id="scoreboard">Attempt <span id="round">1</span>/5 — Total Score: <span id="total">0</span></div>
+    <div id="message">Drag and drop the character...</div>
+    <button id="retry" class="hidden">Retry</button>
+    <button id="next" class="hidden">Next</button>
+  </div>
+
+  <script>
+    const order = ['Supermarket', 'Circus', 'Pharmacy', 'Stadium', 'Library'];
+    const elems = {};
+    order.forEach(id => elems[id] = document.getElementById(id));
+    const char = document.getElementById('character');
+    const container = document.getElementById('game-container');
+    const msg = document.getElementById('message');
+    const retryBtn = document.getElementById('retry');
+    const nextBtn = document.getElementById('next');
+    const roundEl = document.getElementById('round');
+    const totalEl = document.getElementById('total');
+    const levelEl = document.getElementById('level');
+    let current = 0, totalScore = 0;
+    const threshold = 30;
+
+    char.addEventListener('dragstart', e => setTimeout(() => char.style.visibility = 'hidden', 0));
+    char.addEventListener('dragend', e => {
+      char.style.visibility = 'visible';
+      const rect = container.getBoundingClientRect();
+      const x = e.pageX - rect.left;
+      const y = e.pageY - rect.top;
+      evaluate(x, y);
+    });
+    container.addEventListener('dragover', e => e.preventDefault());
+
+    retryBtn.onclick = () => { msg.textContent = 'Try again...'; clearMarkers(); retryBtn.classList.add('hidden'); };
+    nextBtn.onclick = () => {
+      clearMarkers(); current++; if (current >= order.length) { msg.textContent = `Game over! Final score: ${totalScore}`; nextBtn.classList.add('hidden'); return; }
+      roundEl.textContent = current + 1;
+      levelEl.textContent = `LEVEL ${current + 1}`;
+      msg.textContent = 'Drag and drop the character...';
+      nextBtn.classList.add('hidden');
+    };
+
+    function evaluate(x, y) {
+      const id = order[current];
+      const target = elems[id].getBoundingClientRect();
+      const cont = container.getBoundingClientRect();
+      const tx = target.left + target.width / 2 - cont.left;
+      const ty = target.top + target.height / 2 - cont.top;
+      const dist = Math.hypot(x - tx, y - ty);
+      let score;
+      if (dist < threshold) { score = 100; msg.textContent = 'Correct! 100 points.'; }
+      else { score = Math.round((1 - Math.min(dist, 400) / 400) * 9) + 1; msg.textContent = `Distance: ${Math.round(dist)}px → ${score} pts.`; retryBtn.classList.remove('hidden'); }
+      totalScore += score; totalEl.textContent = totalScore;
+      placeMarker(x, y, current + 1);
+      nextBtn.classList.remove('hidden');
+    }
+    function placeMarker(x, y, label) { const m = document.createElement('div'); m.className = 'marker'; m.textContent = label; m.style.left = `${x - 12}px`; m.style.top = `${y - 12}px`; container.appendChild(m); requestAnimationFrame(() => m.classList.add('show')); }
+    function clearMarkers() { document.querySelectorAll('.marker').forEach(m => m.remove()); }
+  </script>
+</body>
+</html>
